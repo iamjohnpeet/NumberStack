@@ -1,20 +1,15 @@
 import React, { Component } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-
-// CREATE A REPO FOR THIS
+import Block from '../components/Block';
 
 export default class Stack extends Component {
     renderBlocks = () => {
         const stack = this.props.stack;
         const blocks = stack.map((block, key) => {
-            console.log(block);
-
-            if (block === "") {
-                return <Text key={ key }>Empty</Text>
-            };
+            // console.log(block);
 
             return(
-                <Text key={ key }>Block {block}</Text>
+                <Block key={ key } block={ block } />
             );
         });
 
@@ -33,5 +28,6 @@ export default class Stack extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        padding: 4,
     }
 });
