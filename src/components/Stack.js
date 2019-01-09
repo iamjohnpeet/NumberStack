@@ -21,7 +21,6 @@ export default class Stack extends Component {
 
     handleClick = () => {
         const stack = this.props.stack;
-
         const blocks = stack.find(block => {
             if (block.isEmpty == null) {
                 return block;
@@ -32,21 +31,21 @@ export default class Stack extends Component {
             return false;
         }
 
-        this.props.handleStackSelect(blocks, this.props.stack, this.props.id);
+        this.props.handleStackSelect(blocks, stack, this.props.id);
 
     }
 
     render() {
         const {
-            isSelected,
+            isBoardSelected,
+            isStackSelected,
         } = this.props;
 
         const blocks = this.renderBlocks();
 
         return (
-            // ALSO NEEDS TO BE GREEN BORDER IF ITS SELECTED (EVEN IF ITS NOT EMPTY)
-            <View style={ [styles.container, this.hasEmpty && isSelected && styles.selected] }>
-                <TouchableWithoutFeedback onPress={ this.hasEmpty ? this.handleClick : null }>
+            <View style={ [styles.container, this.hasEmpty && isBoardSelected && styles.available, isStackSelected && styles.selected] }>
+                <TouchableWithoutFeedback onPress={ this.handleClick }>
                     <View>
                         { blocks }
                     </View>
@@ -64,6 +63,9 @@ const styles = StyleSheet.create({
         borderWidth: 2,
     },
     selected: {
+        borderColor: 'blue',
+    },
+    available: {
         borderColor: 'green',
     }
 });

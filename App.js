@@ -9,7 +9,8 @@ import Stack from './src/components/Stack';
 export default class NumberStack extends Component {
     state = {
         stacksData: [],
-        isSelected: false,
+        isBoardSelected: false,
+        selectedStack: '',
     };
     handleStackSelect = this.handleStackSelect.bind(this)
 
@@ -23,43 +24,48 @@ export default class NumberStack extends Component {
     }
 
     handleStackSelect(block, stack, stackIndex) {
-        const { isSelected} = this.state;
+        const {
+            selectedStack,
+        } = this.state;
 
-        console.log('block: ', block);
-        console.log('stack: ', stack);
-
-        this.setState({
-            isSelected: !isSelected,
-        });
-
+        if(selectedStack === stackIndex) {
+            this.setState({
+                isBoardSelected: false,
+                selectedStack: '',
+            });
+        } else {
+            this.setState({
+                isBoardSelected: true,
+                selectedStack: stackIndex,
+            });
+        }
 
         const emptyIndex = stack.findIndex(blockIndex => blockIndex.isEmpty);
 
-
         // WORK OUT HOW TO INSERT SELECTED BLOCK
-        if ( emptyIndex >= 0 ) {
-            stacksDataBlockIndex = ((stackIndex * 3) + emptyIndex)
-            console.log("stackIndex : ", stackIndex);
-            console.log('emptyIndex: ', emptyIndex);
-            console.log('stacksDataBlockIndex: ', stacksDataBlockIndex);
-            this.state.stacksData.splice(stacksDataBlockIndex, 1);
-        }
+        // if ( emptyIndex >= 0 ) {
+        //     stacksDataBlockIndex = ((stackIndex * 3) + emptyIndex)
+        //     this.state.stacksData.splice(stacksDataBlockIndex, 1);
+        // }
     }
 
     renderStacks = () => {
         const {
-            isSelected,
             stacksData,
+            isBoardSelected,
+            selectedStack,
         } = this.state;
 
-        const stacks = stacksData.map((stack, key) => (
-            <Stack
-                key={ key }
-                id={ key }
-                stack={ stack }
-                isSelected={ isSelected }
-                handleStackSelect={ this.handleStackSelect }
-            />)
+        const stacks = stacksData.map((stack, key) => {
+                return (<Stack
+                    key={ key }
+                    id={ key }
+                    stack={ stack }
+                    isBoardSelected={ isBoardSelected }
+                    isStackSelected={ selectedStack === key }
+                    handleStackSelect={ this.handleStackSelect }
+                />);
+            }
         );
 
         return stacks;
@@ -145,7 +151,6 @@ let data = [
         backgroundColour: blue,
         number: 1,
         id: 'b1',
-        isEmpty: true,
     },
     {
         backgroundColour: blue,
