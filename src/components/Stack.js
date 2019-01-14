@@ -3,35 +3,47 @@ import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
 import Block from '../components/Block';
 
 export default class Stack extends Component {
-    hasEmpty = false;
+    emptySpaces = [];
 
     renderBlocks = () => {
         const stack = this.props.stack;
 
-        const blocks = stack.map((block, key) => {
-            if (block.isEmpty == true) {
-                this.hasEmpty = true;
+        const blocks = stack.map((block, index) => {
+            if (block.isEmpty === true) {
+                this.emptySpaces.push(index);
             }
 
-            return <Block key={ key } block={ block } />
+            return <Block key={ index } block={ block } />
         });
 
         return blocks;
     };
 
     handleClick = () => {
-        const stack = this.props.stack;
-        const blocks = stack.find(block => {
-            if (block.isEmpty == null) {
-                return block;
-            }
-        });
+        const {
+            id,
+            stack,
+            isStackSelected,
+        } = this.props;
+        const availableSpace = ((id * 3) + this.emptySpaces[this.emptySpaces.length - 1]);
 
-        if(!blocks) {
-            return false;
+        const findFirstAvailableBlock = block => {
+            return !block.isEmpty;
         }
+        const selectedBlock = stack.findIndex(findFirstAvailableBlock);
+        const selectBlockPos = ((id * 3) + selectedBlock);
 
-        this.props.handleStackSelect(blocks, stack, this.props.id);
+
+        if (isStackSelected && availableSpace >= 0) {
+            this.props.moveSelectedBlock(availableSpace);
+            return;
+        } else if (availableSpace >= 0) {
+            this.props.handleStackSelect(id, selectBlockPos, availableSpace);
+            return;
+        } else {
+            this.props.handleStackSelect(id, selectBlockPos);
+            return;
+        }
 
     }
 
@@ -44,7 +56,7 @@ export default class Stack extends Component {
         const blocks = this.renderBlocks();
 
         return (
-            <View style={ [styles.container, this.hasEmpty && isBoardSelected && styles.available, isStackSelected && styles.selected] }>
+            <View style={ [styles.container, this.emptySpaces.length && isBoardSelected && styles.available, isStackSelected && styles.selected] }>
                 <TouchableWithoutFeedback onPress={ this.handleClick }>
                     <View>
                         { blocks }

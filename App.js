@@ -6,32 +6,69 @@ import Stack from './src/components/Stack';
 
 // UPDATE GIT IGNORE FILE
 
+/*
+    Index of selectedBlock (selectedStack * 3 + First Free Block)
+    Index of emptyBlock (selectedStack * 3 + Last Empty Block)
+*/
+
 export default class NumberStack extends Component {
     state = {
         stacksData: [],
         isBoardSelected: false,
-        selectedStack: '',
+        selectedStack: null,
     };
-    handleStackSelect = this.handleStackSelect.bind(this)
+    handleStackSelect = this.handleStackSelect.bind(this);
+    swapBlocks = this.swapBlocks.bind(this);
+    shuffledData;
+    emptySpace = null;
+    selectBlockPos = null;
 
     componentDidMount() {
-        const stacksData = this.groupData();
-        stacksData.push(emptyStack);
+        this.shuffledData = this.shuffleData(data);
+
+        const stacksData = this.groupData(this.shuffledData);
 
         this.setState({
             stacksData,
         });
     }
 
-    handleStackSelect(block, stack, stackIndex) {
+    shuffleData = data => {
+        let shuffledData = data.map(currentItem => [Math.random(), currentItem])
+            .sort((currentItem, nextItem) => currentItem[0] - nextItem[0])
+            .map(currentItem => currentItem[1]);
+
+        emptyStack.forEach(emptyBlock => {
+            shuffledData.push(emptyBlock);
+        })
+
+        return shuffledData;
+    };
+
+    groupData = longData => {
+        var i,j,chunk = 3;
+        let groupedData = [];
+
+        for (i = 0, j = longData.length; i < j; i += chunk) {
+            groupedData.push(longData.slice(i, i + chunk));
+        }
+
+        return groupedData;
+    }
+
+    handleStackSelect(stackIndex, selectBlockPos, availableSpace) {
         const {
+            isBoardSelected,
             selectedStack,
         } = this.state;
 
+        console.log('selectedStack === stackIndex) : ', selectedStack, stackIndex);
+
         if(selectedStack === stackIndex) {
+            console.log('Same stack')
             this.setState({
                 isBoardSelected: false,
-                selectedStack: '',
+                selectedStack: null,
             });
         } else {
             this.setState({
@@ -40,13 +77,24 @@ export default class NumberStack extends Component {
             });
         }
 
-        const emptyIndex = stack.findIndex(blockIndex => blockIndex.isEmpty);
+        if (isBoardSelected && availableSpace >= 0) {
+            this.swapBlocks(availableSpace)
+        } else {
+            this.selectBlockPos = selectBlockPos;
+        }
+    }
 
-        // WORK OUT HOW TO INSERT SELECTED BLOCK
-        // if ( emptyIndex >= 0 ) {
-        //     stacksDataBlockIndex = ((stackIndex * 3) + emptyIndex)
-        //     this.state.stacksData.splice(stacksDataBlockIndex, 1);
-        // }
+    swapBlocks(availableSpace) {
+        [this.shuffledData[availableSpace], this.shuffledData[this.selectBlockPos]] = [this.shuffledData[this.selectBlockPos], this.shuffledData[availableSpace]];
+
+        this.setState({
+            stacksData: this.groupData(this.shuffledData),
+            isBoardSelected: false,
+            selectedStack: null,
+        });
+
+        this.emptySpace = null;
+        this.selectBlockPos = null;
     }
 
     renderStacks = () => {
@@ -56,38 +104,21 @@ export default class NumberStack extends Component {
             selectedStack,
         } = this.state;
 
-        const stacks = stacksData.map((stack, key) => {
+        const stacks = stacksData.map((stack, index) => {
                 return (<Stack
-                    key={ key }
-                    id={ key }
+                    key={ index }
+                    id={ index }
                     stack={ stack }
                     isBoardSelected={ isBoardSelected }
-                    isStackSelected={ selectedStack === key }
+                    isStackSelected={ selectedStack === index }
                     handleStackSelect={ this.handleStackSelect }
+                    moveSelectedBlock={ this.swapBlocks }
                 />);
             }
         );
 
         return stacks;
     };
-
-    shuffleData = data => (
-        data.map(currentItem => [Math.random(), currentItem])
-            .sort((currentItem, nextItem) => currentItem[0] - nextItem[0])
-            .map(currentItem => currentItem[1])
-    );
-
-    groupData = () => {
-        const dataSet = this.shuffleData(data);
-        var i,j,chunk = 3;
-        let groupedData = [];
-
-        for (i = 0, j = dataSet.length; i < j; i += chunk) {
-            groupedData.push(dataSet.slice(i, i + chunk));
-        }
-
-        return groupedData;
-    }
 
     render() {
         return (

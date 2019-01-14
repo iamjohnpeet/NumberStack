@@ -15,7 +15,7 @@ export default class Block extends Component {
         if (block.isEmpty) {
             return (
                 <View style={ styles.block }>
-                    <Text style={ styles.blockText }>Empty</Text>
+                    <Text style={ styles.blockText }>{ block.id }</Text>
                 </View>
             )
         };
