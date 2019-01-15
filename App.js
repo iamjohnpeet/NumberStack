@@ -1,15 +1,11 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import { data, emptyStack } from './src/data';
 import Stack from './src/components/Stack';
 
 // ADD README
 
 // UPDATE GIT IGNORE FILE
-
-/*
-    Index of selectedBlock (selectedStack * 3 + First Free Block)
-    Index of emptyBlock (selectedStack * 3 + Last Empty Block)
-*/
 
 export default class NumberStack extends Component {
     state = {
@@ -17,10 +13,10 @@ export default class NumberStack extends Component {
         isBoardSelected: false,
         selectedStack: null,
     };
+
     handleStackSelect = this.handleStackSelect.bind(this);
     swapBlocks = this.swapBlocks.bind(this);
     shuffledData;
-    emptySpace = null;
     selectBlockPos = null;
 
     componentDidMount() {
@@ -62,10 +58,7 @@ export default class NumberStack extends Component {
             selectedStack,
         } = this.state;
 
-        console.log('selectedStack === stackIndex) : ', selectedStack, stackIndex);
-
         if(selectedStack === stackIndex) {
-            console.log('Same stack')
             this.setState({
                 isBoardSelected: false,
                 selectedStack: null,
@@ -77,24 +70,32 @@ export default class NumberStack extends Component {
             });
         }
 
-        if (isBoardSelected && availableSpace >= 0) {
-            this.swapBlocks(availableSpace)
+        if (isBoardSelected && availableSpace >= 0 && selectedStack !== stackIndex) {
+            this.swapBlocks(availableSpace, stackIndex)
         } else {
             this.selectBlockPos = selectBlockPos;
         }
     }
 
-    swapBlocks(availableSpace) {
-        [this.shuffledData[availableSpace], this.shuffledData[this.selectBlockPos]] = [this.shuffledData[this.selectBlockPos], this.shuffledData[availableSpace]];
+    swapBlocks(availableSpace, stackIndex) {
+        const { selectedStack } = this.state;
 
-        this.setState({
-            stacksData: this.groupData(this.shuffledData),
-            isBoardSelected: false,
-            selectedStack: null,
-        });
+        if(selectedStack !== stackIndex) {
+            [this.shuffledData[availableSpace], this.shuffledData[this.selectBlockPos]] = [this.shuffledData[this.selectBlockPos], this.shuffledData[availableSpace]];
 
-        this.emptySpace = null;
-        this.selectBlockPos = null;
+            this.setState({
+                stacksData: this.groupData(this.shuffledData),
+                isBoardSelected: false,
+                selectedStack: null,
+            });
+
+            this.selectBlockPos = null;
+        } else {
+            this.setState({
+                isBoardSelected: false,
+                selectedStack: null,
+            });
+        }
     }
 
     renderStacks = () => {
@@ -142,69 +143,3 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     }
 });
-
-const red = '#E3283E'
-const yellow = '#E3AC12'
-const blue = '#01ACED'
-
-let data = [
-    {
-        backgroundColour: red,
-        number: 1,
-        id: 'r1',
-    },
-    {
-        backgroundColour: red,
-        number: 2,
-        id: 'r2',
-    },
-    {
-        backgroundColour: red,
-        number: 3,
-        id: 'r3',
-    },
-    {
-        backgroundColour: yellow,
-        number: 1,
-        id: 'y1',
-    },
-    {
-        backgroundColour: yellow,
-        number: 2,
-        id: 'y2',
-    },
-    {
-        backgroundColour: yellow,
-        number: 3,
-        id: 'y3',
-    },
-    {
-        backgroundColour: blue,
-        number: 1,
-        id: 'b1',
-    },
-    {
-        backgroundColour: blue,
-        number: 2,
-        id: 'b2',
-    },
-    {
-        backgroundColour: blue,
-        number: 3,
-        id: 'b3',
-    },
-];
-const emptyStack = [
-    {
-        id: 'empty1',
-        isEmpty: true,
-    },
-    {
-        id: 'empty2',
-        isEmpty: true,
-    },
-    {
-        id: 'empty3',
-        isEmpty: true,
-    }
-];

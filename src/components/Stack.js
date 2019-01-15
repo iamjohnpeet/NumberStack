@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, TouchableWithoutFeedback, StyleSheet } from 'react-native';
+import { View, TouchableWithoutFeedback, StyleSheet, Text } from 'react-native';
 import Block from '../components/Block';
 
 export default class Stack extends Component {
@@ -34,10 +34,10 @@ export default class Stack extends Component {
         const selectBlockPos = ((id * 3) + selectedBlock);
 
 
-        if (isStackSelected && availableSpace >= 0) {
-            this.props.moveSelectedBlock(availableSpace);
+        if (isStackSelected && this.emptySpaces.length > 0) {
+            this.props.moveSelectedBlock(availableSpace, id);
             return;
-        } else if (availableSpace >= 0) {
+        } else if (this.emptySpaces.length > 0) {
             this.props.handleStackSelect(id, selectBlockPos, availableSpace);
             return;
         } else {
@@ -57,6 +57,7 @@ export default class Stack extends Component {
 
         return (
             <View style={ [styles.container, this.emptySpaces.length && isBoardSelected && styles.available, isStackSelected && styles.selected] }>
+                <View style={ styles.pole } />
                 <TouchableWithoutFeedback onPress={ this.handleClick }>
                     <View>
                         { blocks }
@@ -73,6 +74,17 @@ const styles = StyleSheet.create({
         padding: 4,
         borderColor: 'white',
         borderWidth: 2,
+    },
+    pole: {
+        position: 'absolute',
+        bottom: 6,
+        top: -10,
+        marginLeft: -2,
+        width: 30,
+        backgroundColor: '#2b1d0e',
+        borderWidth: 2,
+        flexGrow: 1,
+        alignSelf: 'center'
     },
     selected: {
         borderColor: 'blue',
