@@ -4,7 +4,10 @@ import { View, Text, StyleSheet } from 'react-native';
 export default class Block extends Component {
 
     render() {
-        const { block } = this.props;
+        const {
+            block,
+            isSelected,
+        } = this.props;
 
         const propStyles = StyleSheet.create({
             blockColour: {
@@ -14,12 +17,12 @@ export default class Block extends Component {
 
         if (block.isEmpty) {
             return (
-                <View style={ styles.block } />
+                <View style={ [styles.block, styles.emptyBlock, styles.available] } />
             )
         };
 
         return(
-            <View style={ [styles.block, propStyles.blockColour] }>
+            <View style={ [styles.block, propStyles.blockColour, isSelected && styles.selected] }>
                 <Text style={ styles.blockText }>{block.number}</Text>
             </View>
 
@@ -34,10 +37,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 4,
         borderRadius: 5,
+        borderWidth: 2,
     },
     blockText: {
         textAlign: 'center',
         fontSize: 18,
         fontWeight: 'bold'
+    },
+    emptyBlock: {
+        borderColor: 'transparent',
+    },
+    selected: {
+        borderColor: '#26d6d2',
+        shadowColor: '#26d6d2',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 1,
+        shadowRadius: 4,
+    },
+    available: {
+        borderStyle: 'dashed',
+        borderColor: '#1fd731',
     }
 });

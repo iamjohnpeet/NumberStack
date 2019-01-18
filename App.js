@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { data, emptyStack } from './src/data';
 import Stack from './src/components/Stack';
 
@@ -124,8 +124,13 @@ export default class NumberStack extends Component {
     render() {
         return (
             <View style={ styles.container }>
-                <View style={ styles.stacks }>
-                    { this.renderStacks() }
+                <View style={ styles.topSection }>
+                    <Text>Hello</Text>
+                </View>
+                <View style={ styles.bottomSection }>
+                    <View style={ styles.stacks }>
+                        { this.renderStacks() }
+                    </View>
                 </View>
             </View>
         );
@@ -135,9 +140,18 @@ export default class NumberStack extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    topSection: {
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 5,
+        padding: 10,
+    },
+    bottomSection: {
+        flex: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 10,
     },
     stacks: {
         flexDirection: 'row',

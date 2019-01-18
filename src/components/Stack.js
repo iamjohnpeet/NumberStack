@@ -13,7 +13,13 @@ export default class Stack extends Component {
                 this.emptySpaces.push(index);
             }
 
-            return <Block key={ index } block={ block } />
+            return (
+                <Block
+                    key={ index }
+                    block={ block }
+                    isSelected={ index === 0 }
+                />
+            );
         });
 
         return blocks;
@@ -72,24 +78,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 4,
-        borderColor: 'white',
-        borderWidth: 2,
     },
     pole: {
         position: 'absolute',
         bottom: 6,
         top: -10,
-        marginLeft: -2,
-        width: 30,
+        width: 32,
         backgroundColor: '#2b1d0e',
-        borderWidth: 2,
         flexGrow: 1,
         alignSelf: 'center'
     },
-    selected: {
-        borderColor: 'blue',
-    },
-    available: {
-        borderColor: 'green',
-    }
 });
