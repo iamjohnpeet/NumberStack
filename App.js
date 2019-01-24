@@ -121,30 +121,17 @@ export default class NumberStack extends Component {
         } else {
             console.log('They are NOT equal!');
         }
-
-        // arr1.forEach(element1 => arr2.forEach(element2 => {
-        //     console.log(element1.id, element2.id)
-        //     if(element1.id !== element2.id) {
-        //         this.setState({
-        //             gameComplete: false,
-        //         })
-        //     } else {
-        //         console.log('GAME COMPLETE')
-        //         this.setState({
-        //             gameComplete: true,
-        //         })
-        //     }
-        // }))
     }
 
-    renderStacks = () => {
+    renderStacks = boardData => {
         const {
-            stacksData,
             isBoardSelected,
             selectedStack,
         } = this.state;
 
-        const stacks = stacksData.map((stack, index) => {
+        console.log('boardData : ', boardData)
+
+        const stacks = boardData.map((stack, index) => {
                 return (<Stack
                     key={ index }
                     id={ index }
@@ -161,14 +148,21 @@ export default class NumberStack extends Component {
     };
 
     render() {
+        const boardData = this.groupData(this.state.boardData);
+
         return (
             <View style={ styles.container }>
                 <View style={ styles.topSection }>
-                    <Text>{ this.state.gameComplete ? 'Complete' : 'Not complete' }</Text>
+                    <View style={ styles.topSectionBoard }>
+                        <View style={ styles.stacks }>
+                            { this.renderStacks(boardData) }
+                        </View>
+                        <Text>{ this.state.gameComplete ? 'Complete' : 'Not complete' }</Text>
+                    </View>
                 </View>
                 <View style={ styles.bottomSection }>
                     <View style={ styles.stacks }>
-                        { this.renderStacks() }
+                        { this.renderStacks(this.state.stacksData) }
                     </View>
                 </View>
             </View>
@@ -186,6 +180,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 10,
         borderWidth: 2,
+    },
+    topSectionBoard: {
+        width: 200,
     },
     bottomSection: {
         flex: 2,

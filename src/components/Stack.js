@@ -85,7 +85,6 @@ const styles = StyleSheet.create({
         top: -10,
         width: 32,
         backgroundColor: '#2b1d0e',
-        flexGrow: 1,
         alignSelf: 'center'
     },
 });
