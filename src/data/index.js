@@ -51,15 +51,15 @@ export const  data = [
 ];
 export const emptyStack = [
     {
-        id: 'empty1',
+        id: 'empty',
         isEmpty: true,
     },
     {
-        id: 'empty2',
+        id: 'empty',
         isEmpty: true,
     },
     {
-        id: 'empty3',
+        id: 'empty',
         isEmpty: true,
     }
 ];

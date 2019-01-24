@@ -10,23 +10,29 @@ import Stack from './src/components/Stack';
 export default class NumberStack extends Component {
     state = {
         stacksData: [],
+        boardData: [],
         isBoardSelected: false,
         selectedStack: null,
+        gameComplete: false,
     };
 
     handleStackSelect = this.handleStackSelect.bind(this);
     swapBlocks = this.swapBlocks.bind(this);
+    compareData = this.compareData.bind(this);
     shuffledData;
     selectBlockPos = null;
 
     componentDidMount() {
+        const dataShuffled = this.shuffleData(data);
         this.shuffledData = this.shuffleData(data);
 
         const stacksData = this.groupData(this.shuffledData);
 
         this.setState({
             stacksData,
-        });
+            boardData: dataShuffled,
+        }, () => console.log('this.boardData : ', this.state.boardData));
+        console.log(this.shuffledData)
     }
 
     shuffleData = data => {
@@ -96,6 +102,39 @@ export default class NumberStack extends Component {
                 selectedStack: null,
             });
         }
+
+        this.compareData();
+    }
+
+    compareData() {
+        const arr1 = this.shuffledData;
+        const arr2 = this.state.boardData;
+
+        const arr1id = arr1.map(el => el.id)
+        const arr2id = arr2.map(el => el.id)
+
+        if (JSON.stringify(arr1id) === JSON.stringify(arr2id)) {
+            console.log('They ARE equal!');
+            this.setState({
+                gameComplete: true,
+            })
+        } else {
+            console.log('They are NOT equal!');
+        }
+
+        // arr1.forEach(element1 => arr2.forEach(element2 => {
+        //     console.log(element1.id, element2.id)
+        //     if(element1.id !== element2.id) {
+        //         this.setState({
+        //             gameComplete: false,
+        //         })
+        //     } else {
+        //         console.log('GAME COMPLETE')
+        //         this.setState({
+        //             gameComplete: true,
+        //         })
+        //     }
+        // }))
     }
 
     renderStacks = () => {
@@ -125,7 +164,7 @@ export default class NumberStack extends Component {
         return (
             <View style={ styles.container }>
                 <View style={ styles.topSection }>
-                    <Text>Hello</Text>
+                    <Text>{ this.state.gameComplete ? 'Complete' : 'Not complete' }</Text>
                 </View>
                 <View style={ styles.bottomSection }>
                     <View style={ styles.stacks }>
@@ -146,6 +185,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 10,
+        borderWidth: 2,
     },
     bottomSection: {
         flex: 2,
