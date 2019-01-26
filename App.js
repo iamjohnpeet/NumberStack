@@ -3,6 +3,7 @@ import { View, StyleSheet, Text } from 'react-native';
 import { data, emptyStack } from './src/data';
 import { compareArrays, swapArrayElements, randomiseArray, groupArray } from './src/lib/utils';
 import Stack from './src/components/ui/Stack';
+import Board from './src/components/ui/Board';
 
 // ADD README
 
@@ -17,11 +18,12 @@ export default class NumberStack extends Component {
         gameComplete: false,
     };
 
+    shuffledData;
+    selectBlockPos = null;
+
     handleStackSelect = this.handleStackSelect.bind(this);
     swapBlocks = this.swapBlocks.bind(this);
     compareData = this.compareData.bind(this);
-    shuffledData;
-    selectBlockPos = null;
 
     componentDidMount() {
         const dataShuffled = this.shuffleData(data);
@@ -141,6 +143,11 @@ export default class NumberStack extends Component {
                         <View style={ styles.stacks }>
                             { this.renderStacks(boardData) }
                         </View>
+                        {/* <Board
+                            boardData={ this.state.stacksData }
+                            boardPlayable={ false }
+                            { ...this.props }
+                        /> */}
                         <Text>{ this.state.gameComplete ? 'Complete' : 'Not complete' }</Text>
                     </View>
                 </View>
