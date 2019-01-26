@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import { data, emptyStack } from './src/data';
-import Stack from './src/components/Stack';
+import { compareArrays, swapArrayElements, randomiseArray, groupArray } from './src/lib/utils';
+import Stack from './src/components/ui/Stack';
 
 // ADD README
 
@@ -31,14 +32,11 @@ export default class NumberStack extends Component {
         this.setState({
             stacksData,
             boardData: dataShuffled,
-        }, () => console.log('this.boardData : ', this.state.boardData));
-        console.log(this.shuffledData)
+        });
     }
 
     shuffleData = data => {
-        let shuffledData = data.map(currentItem => [Math.random(), currentItem])
-            .sort((currentItem, nextItem) => currentItem[0] - nextItem[0])
-            .map(currentItem => currentItem[1]);
+        const shuffledData = randomiseArray(data);
 
         emptyStack.forEach(emptyBlock => {
             shuffledData.push(emptyBlock);
@@ -47,13 +45,15 @@ export default class NumberStack extends Component {
         return shuffledData;
     };
 
-    groupData = longData => {
-        var i,j,chunk = 3;
-        let groupedData = [];
+    resetState = () => {
+        this.setState({
+            isBoardSelected: false,
+            selectedStack: null,
+        });
+    }
 
-        for (i = 0, j = longData.length; i < j; i += chunk) {
-            groupedData.push(longData.slice(i, i + chunk));
-        }
+    groupData = data => {
+        const groupedData = groupArray(data, 3);
 
         return groupedData;
     }
@@ -65,10 +65,7 @@ export default class NumberStack extends Component {
         } = this.state;
 
         if(selectedStack === stackIndex) {
-            this.setState({
-                isBoardSelected: false,
-                selectedStack: null,
-            });
+            this.resetState();
         } else {
             this.setState({
                 isBoardSelected: true,
@@ -87,49 +84,35 @@ export default class NumberStack extends Component {
         const { selectedStack } = this.state;
 
         if(selectedStack !== stackIndex) {
-            [this.shuffledData[availableSpace], this.shuffledData[this.selectBlockPos]] = [this.shuffledData[this.selectBlockPos], this.shuffledData[availableSpace]];
+            swapArrayElements(this.shuffledData, availableSpace, this.selectBlockPos);
 
             this.setState({
                 stacksData: this.groupData(this.shuffledData),
-                isBoardSelected: false,
-                selectedStack: null,
             });
 
+            this.resetState();
             this.selectBlockPos = null;
         } else {
-            this.setState({
-                isBoardSelected: false,
-                selectedStack: null,
-            });
+            this.resetState();
         }
 
         this.compareData();
     }
 
     compareData() {
-        const arr1 = this.shuffledData;
-        const arr2 = this.state.boardData;
+        const arr1 = this.shuffledData.map(el => el.id)
+        const arr2 = this.state.boardData.map(el => el.id)
 
-        const arr1id = arr1.map(el => el.id)
-        const arr2id = arr2.map(el => el.id)
-
-        if (JSON.stringify(arr1id) === JSON.stringify(arr2id)) {
-            console.log('They ARE equal!');
-            this.setState({
-                gameComplete: true,
-            })
-        } else {
-            console.log('They are NOT equal!');
-        }
+        this.setState({
+            gameComplete: compareArrays(JSON.stringify(arr1), JSON.stringify(arr2)),
+        })
     }
 
-    renderStacks = boardData => {
+    renderStacks = (boardData, boardPlayable = false) => {
         const {
             isBoardSelected,
             selectedStack,
         } = this.state;
-
-        console.log('boardData : ', boardData)
 
         const stacks = boardData.map((stack, index) => {
                 return (<Stack
@@ -140,6 +123,7 @@ export default class NumberStack extends Component {
                     isStackSelected={ selectedStack === index }
                     handleStackSelect={ this.handleStackSelect }
                     moveSelectedBlock={ this.swapBlocks }
+                    gamePieces={ boardPlayable }
                 />);
             }
         );
@@ -162,7 +146,7 @@ export default class NumberStack extends Component {
                 </View>
                 <View style={ styles.bottomSection }>
                     <View style={ styles.stacks }>
-                        { this.renderStacks(this.state.stacksData) }
+                        { this.renderStacks(this.state.stacksData, true) }
                     </View>
                 </View>
             </View>
@@ -179,18 +163,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: 10,
-        borderWidth: 2,
+        paddingTop: 60,
+        borderBottomWidth: 2,
+        borderBottomColor: '#000',
+        backgroundColor: '#ddd'
     },
     topSectionBoard: {
-        width: 200,
+        width: 240,
     },
     bottomSection: {
         flex: 2,
         alignItems: 'center',
         justifyContent: 'center',
-        padding: 10,
+        padding: 20,
     },
     stacks: {
         flexDirection: 'row',
+        borderBottomWidth: 14,
+        borderBottomColor: '#2b1d0e',
     }
 });

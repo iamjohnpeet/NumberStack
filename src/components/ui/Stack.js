@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet, Text } from 'react-native';
-import Block from '../components/Block';
+import Block from './Block';
 
 export default class Stack extends Component {
     emptySpaces = [];
 
     renderBlocks = () => {
+        const { isStackSelected } = this.props;
         const stack = this.props.stack;
+        let selectedBlock;
+
+        if (isStackSelected) {
+            selectedBlock = stack.findIndex((block, index) => isStackSelected && !block.isEmpty)
+        }
 
         const blocks = stack.map((block, index) => {
             if (block.isEmpty === true) {
@@ -17,7 +23,7 @@ export default class Stack extends Component {
                 <Block
                     key={ index }
                     block={ block }
-                    isSelected={ index === 0 }
+                    isSelected={ isStackSelected && selectedBlock >= 0 && selectedBlock === index }
                 />
             );
         });
@@ -30,7 +36,10 @@ export default class Stack extends Component {
             id,
             stack,
             isStackSelected,
+            moveSelectedBlock,
+            handleStackSelect,
         } = this.props;
+
         const availableSpace = ((id * 3) + this.emptySpaces[this.emptySpaces.length - 1]);
 
         const findFirstAvailableBlock = block => {
@@ -41,34 +50,38 @@ export default class Stack extends Component {
 
 
         if (isStackSelected && this.emptySpaces.length > 0) {
-            this.props.moveSelectedBlock(availableSpace, id);
+            moveSelectedBlock(availableSpace, id);
             return;
         } else if (this.emptySpaces.length > 0) {
-            this.props.handleStackSelect(id, selectBlockPos, availableSpace);
+            handleStackSelect(id, selectBlockPos, availableSpace);
             return;
         } else {
-            this.props.handleStackSelect(id, selectBlockPos);
+            handleStackSelect(id, selectBlockPos);
             return;
         }
-
     }
 
     render() {
         const {
             isBoardSelected,
             isStackSelected,
+            gamePieces,
         } = this.props;
 
         const blocks = this.renderBlocks();
 
+        const renderMoveableBlocks = (
+            <TouchableWithoutFeedback onPress={ this.handleClick }>
+                <View>
+                    { blocks }
+                </View>
+            </TouchableWithoutFeedback>
+        )
+
         return (
             <View style={ [styles.container, this.emptySpaces.length && isBoardSelected && styles.available, isStackSelected && styles.selected] }>
                 <View style={ styles.pole } />
-                <TouchableWithoutFeedback onPress={ this.handleClick }>
-                    <View>
-                        { blocks }
-                    </View>
-                </TouchableWithoutFeedback>
+                { gamePieces ? renderMoveableBlocks : blocks }
             </View>
         );
     }
@@ -77,14 +90,17 @@ export default class Stack extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 4,
+        paddingLeft: 4,
+        paddingRight: 4,
     },
     pole: {
         position: 'absolute',
-        bottom: 6,
-        top: -10,
-        width: 32,
+        bottom: 0,
+        top: -16,
+        width: 16,
         backgroundColor: '#2b1d0e',
-        alignSelf: 'center'
+        alignSelf: 'center',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
     },
 });
