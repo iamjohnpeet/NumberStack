@@ -58,8 +58,6 @@ export default class Board extends Component {
             boardPlayable,
         } = this.props;
 
-        console.log('Props : ', this.props)
-
         const {
             isBoardSelected,
             selectedStack,
