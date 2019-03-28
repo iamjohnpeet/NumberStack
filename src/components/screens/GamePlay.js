@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import { connect } from 'react-redux'
+// import { connect } from 'react-redux'
 import { data, emptyStack } from '../../data';
 import { compareArrays, swapArrayElements, randomiseArray, groupArray } from '../../lib/utils';
 import Stack from '../ui/Stack'
@@ -16,6 +16,8 @@ class GamePlay extends Component {
         isBoardSelected: false,
         selectedStack: null,
         gameComplete: false,
+        moves: 0,
+        score: null,
     };
 
     shuffledData;
@@ -90,6 +92,7 @@ class GamePlay extends Component {
 
             this.setState({
                 stacksData: this.groupData(this.shuffledData),
+                moves: this.state.moves += 1,
             });
 
             this.resetState();
@@ -105,8 +108,15 @@ class GamePlay extends Component {
         const arr1 = this.shuffledData.map(el => el.id)
         const arr2 = this.state.boardData.map(el => el.id)
 
+        if (compareArrays(JSON.stringify(arr1), JSON.stringify(arr2))) {
+            this.endGame();
+        }
+    }
+
+    endGame() {
         this.setState({
-            gameComplete: compareArrays(JSON.stringify(arr1), JSON.stringify(arr2)),
+            gameComplete: true,
+            score: this.state.moves,
         })
     }
 
@@ -138,6 +148,11 @@ class GamePlay extends Component {
 
         return (
             <View style={ styles.container }>
+                <View style={ styles.scoreBoard }>
+                    <Text>Moves: { this.state.moves } </Text>
+                    <Text>Time: </Text>
+                    { this.state.score && <Text>Your Score: { this.state.score }</Text>}
+                </View>
                 <View style={ styles.topSection }>
                     <View style={ styles.topSectionBoard }>
                         <View style={ styles.stacks }>
@@ -165,6 +180,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
+    scoreBoard: {
+        height: 72,
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'flex-end',
+        paddingTop: 6,
+        paddingBottom: 6,
+    },
     topSection: {
         flex: 1,
         alignItems: 'center',
@@ -191,10 +214,10 @@ const styles = StyleSheet.create({
     }
 });
 
-const mapStateToProps = state => {
-    return {
-        gameCompleted: getGameStatus(state.gameCompleted)
-    }
-}
+// const mapStateToProps = state => {
+//     return {
+//         gameCompleted: getGameStatus(state.gameCompleted)
+//     }
+// }
 
-export default connect(mapStateToProps)(GamePlay);
+export default GamePlay;
