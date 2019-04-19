@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { AsyncStorage, View, StyleSheet, Text } from 'react-native';
+import { SafeAreaView, AsyncStorage, View, StyleSheet, Text, Button, Modal, TouchableHighlight } from 'react-native';
 // import { connect } from 'react-redux'
 import { data, emptyStack } from '../../data';
 import { compareArrays, swapArrayElements, randomiseArray, groupArray } from '../../lib/utils';
+import Timer from '../ui/Timer'
 import Stack from '../ui/Stack'
 
 // ADD README
@@ -21,6 +22,7 @@ class GamePlay extends Component {
         score: null,
         millisecondsElapsed: 0,
         bestScore: 0,
+        modalVisible: false,
     };
 
     shuffledData;
@@ -32,38 +34,27 @@ class GamePlay extends Component {
 
     // Compnent Mount
     componentDidMount() {
-        const dataShuffled = this.shuffleData(data);
-        this.shuffledData = this.shuffleData(data);
-
-        const stacksData = this.groupData(this.shuffledData);
-
-        // const bestScore = AsyncStorage.getItem('score').then(score => parseInt(score));
-
-        this.retrieveData();
-
-        this.setState({
-            stacksData,
-            boardData: dataShuffled,
-        });
-
-        this.startTimer();
+        this.startGame();
     }
 
     async retrieveData() {
         try {
             const bestScore = await AsyncStorage.getItem('score');
 
-            this.setState({
-                bestScore: parseInt(bestScore),
-            }, () => console.log('bestScore', this.state.bestScore));
-
+            if (bestScore !== null) {
+                this.setState({
+                    bestScore: parseInt(bestScore),
+                }, () => console.log('bestScore', this.state.bestScore));
+            }
         } catch (error) {
             console.log(error.message);
         }
     }
 
     storeData(score) {
-        if (score < this.state.bestScore) {
+        const { bestScore } = this.state;
+
+        if (bestScore === 0 || score < bestScore) {
             AsyncStorage.setItem('score', score.toString());
         }
 
@@ -73,25 +64,17 @@ class GamePlay extends Component {
     startTimer() {
         this.timer = setInterval(() => {
             this.setState({
-                millisecondsElapsed: this.state.millisecondsElapsed + 1
+                millisecondsElapsed: this.state.millisecondsElapsed + 100
             })
-        }, 1)
+        }, 100)
     }
 
     stopTimer() {
         clearInterval(this.timer);
     }
 
-    getMinutes() {
-        return (`0${ Math.floor((this.state.millisecondsElapsed / 100) / 60 % 60) }`).slice(-2);
-    }
-
-    getSeconds() {
-        return (`0${ Math.floor((this.state.millisecondsElapsed / 100) % 60) }`).slice(-2);
-    }
-
-    getMilliseconds() {
-        return (`0${ this.state.millisecondsElapsed % 100 }`).slice(-2);
+    setModalVisible(visible) {
+      this.setState({ modalVisible: visible });
     }
 
     // Shuffle data
@@ -110,6 +93,20 @@ class GamePlay extends Component {
         this.setState({
             isBoardSelected: false,
             selectedStack: null,
+        });
+    }
+
+    // Reset the state object
+    resetTimer = () => {
+        this.setState({
+            millisecondsElapsed: 0,
+        });
+    }
+
+    // Reset the state object
+    resetMoves = () => {
+        this.setState({
+            moves: 0,
         });
     }
 
@@ -174,12 +171,34 @@ class GamePlay extends Component {
         }
     }
 
+    // start game
+    startGame() {
+        const dataShuffled = this.shuffleData(data);
+        this.shuffledData = this.shuffleData(data);
+
+        const stacksData = this.groupData(this.shuffledData);
+
+        this.retrieveData();
+
+        this.setState({
+            stacksData,
+            boardData: dataShuffled,
+        });
+
+        this.resetState();
+        this.resetTimer();
+        this.resetMoves();
+        this.setModalVisible(false);
+        this.startTimer();
+    }
+
     // End game
     endGame() {
-        const score = this.state.moves * this.state.millisecondsElapsed;
+        const score = Math.floor((this.state.moves * this.state.millisecondsElapsed) / 9);
         this.stopTimer();
 
         this.storeData(score)
+        this.setModalVisible(true);
 
         this.setState({
             gameComplete: true,
@@ -216,17 +235,12 @@ class GamePlay extends Component {
         const boardData = this.groupData(this.state.boardData);
 
         return (
-            <View style={ styles.container }>
+            <SafeAreaView style={ styles.container }>
                 <View style={ styles.scoreBoard }>
-                    <Text style={ styles.score }>Time: { `${this.getMinutes()}:${this.getSeconds()}:${this.getMilliseconds()}` }</Text>
-                    <Text style={ styles.score }>Moves: { this.state.moves }</Text>
-                    { this.state.bestScore > 0 && <Text style={ styles.score }>Best Score: { this.state.bestScore }</Text>}
+                    <View onPress={() => clearInterval(this.timer)} style={ styles.score }><Timer millisecondsElapsed={ this.state.millisecondsElapsed } /></View>
+                    <Text style={ styles.moves }>Moves: { this.state.moves }</Text>
+                    { this.state.bestScore > 0 && <Text style={ styles.moves }>Best Score: { this.state.bestScore.toLocaleString() }</Text>}
                 </View>
-                { this.state.score && (
-                    <View style={ styles.scoreBoard }>
-                        <Text style={ styles.score }>Your Score: { this.state.score }</Text>
-                    </View>
-                ) }
                 <View style={ styles.topSection }>
                     <View style={ styles.topSectionBoard }>
                         <View style={ styles.stacks }>
@@ -237,7 +251,6 @@ class GamePlay extends Component {
                             boardPlayable={ false }
                             { ...this.props }
                         /> */}
-                        <Text>{ this.state.gameComplete ? 'Complete' : 'Not complete' }</Text>
                     </View>
                 </View>
                 <View style={ styles.bottomSection }>
@@ -245,7 +258,50 @@ class GamePlay extends Component {
                         { this.renderStacks(this.state.stacksData, true) }
                     </View>
                 </View>
-            </View>
+                <Modal
+                    animationType="fade"
+                    transparent
+                    visible={ this.state.modalVisible }
+                >
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <View style={{
+                            backgroundColor: 'white',
+                            width: 260,
+                            height: 180,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                            { this.state.score && (
+                                <View style={ styles.scoreBoard }>
+                                    <Text style={ styles.score }>Your Score: { this.state.score.toLocaleString() }</Text>
+                                    { this.state.score < this.state.bestScore && <Text style={ styles.score }>Best score yet! </Text>}
+                                </View>
+                            ) }
+                            <View style={{ flexDirection: "row" }}>
+                                {/* <TouchableHighlight
+                                    style={ styles.button }
+                                    onPress={() => {
+                                    this.setModalVisible(!this.state.modalVisible);
+                                }}>
+                                    <Text style={{ fontWeight: 'bold' }}>Try again</Text>
+                                </TouchableHighlight> */}
+                                <TouchableHighlight
+                                    style={ styles.button }
+                                    onPress={() => {
+                                    this.startGame();
+                                }}>
+                                    <Text style={{ fontWeight: 'bold' }}>New game</Text>
+                                </TouchableHighlight>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
+            </SafeAreaView>
         );
     }
 }
@@ -255,23 +311,28 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scoreBoard: {
-        height: 72,
         flexDirection: 'row',
         justifyContent: 'flex-end',
         alignItems: 'flex-end',
         paddingTop: 6,
         paddingBottom: 6,
     },
+    moves: {
+        flex: 1,
+        textAlign: 'center',
+    },
     score: {
         flex: 1,
         textAlign: 'center',
+        fontSize: 24,
+        fontWeight: 'bold'
     },
     topSection: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
         padding: 10,
-        paddingTop: 60,
+        paddingTop: 20,
         borderBottomWidth: 2,
         borderBottomColor: '#000',
         backgroundColor: '#ddd'
@@ -289,6 +350,12 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         borderBottomWidth: 14,
         borderBottomColor: '#2b1d0e',
+    },
+    button: {
+        borderColor: 'black',
+        borderWidth: 3,
+        padding: 10,
+        margin: 4,
     }
 });
 
