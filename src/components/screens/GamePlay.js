@@ -5,6 +5,7 @@ import { data, emptyStack } from '../../data';
 import { compareArrays, swapArrayElements, randomiseArray, groupArray } from '../../lib/utils';
 import Timer from '../ui/Timer'
 import Stack from '../ui/Stack'
+import DraggableBlock from '../ui/DraggableBlock'
 
 // ADD README
 
@@ -237,7 +238,7 @@ class GamePlay extends Component {
         return (
             <SafeAreaView style={ styles.container }>
                 <View style={ styles.scoreBoard }>
-                    <View onPress={() => clearInterval(this.timer)} style={ styles.score }><Timer millisecondsElapsed={ this.state.millisecondsElapsed } /></View>
+                    <View onPress={() => clearInterval(this.timer)} style={ styles.moves }><Timer millisecondsElapsed={ this.state.millisecondsElapsed } /></View>
                     <Text style={ styles.moves }>Moves: { this.state.moves }</Text>
                     { this.state.bestScore > 0 && <Text style={ styles.moves }>Best Score: { this.state.bestScore.toLocaleString() }</Text>}
                 </View>
@@ -277,9 +278,13 @@ class GamePlay extends Component {
                             alignItems: 'center',
                         }}>
                             { this.state.score && (
-                                <View style={ styles.scoreBoard }>
-                                    <Text style={ styles.score }>Your Score: { this.state.score.toLocaleString() }</Text>
-                                    { this.state.score < this.state.bestScore && <Text style={ styles.score }>Best score yet! </Text>}
+                                <View>
+                                    <View>
+                                        <Text style={ styles.score }>Your Score: { this.state.score.toLocaleString() }</Text>
+                                    </View>
+                                    <View>
+                                        { this.state.score < (this.state.bestScore + 1000000) && <Text style={ styles.score }>Best score yet! 🎉</Text>}
+                                    </View>
                                 </View>
                             ) }
                             <View style={{ flexDirection: "row" }}>
@@ -322,7 +327,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     score: {
-        flex: 1,
         textAlign: 'center',
         fontSize: 24,
         fontWeight: 'bold'
