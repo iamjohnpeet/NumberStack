@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { View, TouchableWithoutFeedback, StyleSheet, Text } from 'react-native';
 import Block from './Block';
+import DraggableBlock from './DraggableBlock';
 
 export default class Stack extends Component {
     emptySpaces = [];
 
-    renderBlocks = () => {
+    renderBlocks = staticBlocks => {
         const { isStackSelected } = this.props;
         const stack = this.props.stack;
         let selectedBlock;
@@ -14,18 +15,42 @@ export default class Stack extends Component {
             selectedBlock = stack.findIndex((block, index) => isStackSelected && !block.isEmpty)
         }
 
+        console.log('staticBlocks : ', staticBlocks)
+
         const blocks = stack.map((block, index) => {
             if (block.isEmpty === true) {
                 this.emptySpaces.push(index);
             }
 
+            if (staticBlocks) {
+                return (
+                    <Block
+                        key={ index }
+                        block={ block }
+                        isSelected={ isStackSelected && selectedBlock >= 0 && selectedBlock === index }
+                    />
+                );
+            }
+
             return (
-                <Block
+                <DraggableBlock
                     key={ index }
                     block={ block }
                     isSelected={ isStackSelected && selectedBlock >= 0 && selectedBlock === index }
                 />
             );
+
+            // return (
+            //     <TouchableWithoutFeedback onPress={ this.handleClick }>
+            //         <View>
+            //             <Block
+            //                 key={ index }
+            //                 block={ block }
+            //                 isSelected={ isStackSelected && selectedBlock >= 0 && selectedBlock === index }
+            //             />
+            //         </View>
+            //     </TouchableWithoutFeedback>
+            // );
         });
 
         return blocks;
@@ -65,23 +90,15 @@ export default class Stack extends Component {
         const {
             isBoardSelected,
             isStackSelected,
-            gamePieces,
+            staticBoard,
         } = this.props;
 
-        const blocks = this.renderBlocks();
-
-        const renderMoveableBlocks = (
-            <TouchableWithoutFeedback onPress={ this.handleClick }>
-                <View>
-                    { blocks }
-                </View>
-            </TouchableWithoutFeedback>
-        )
+        const blocks = this.renderBlocks(staticBoard);
 
         return (
             <View style={ [styles.container, this.emptySpaces.length && isBoardSelected && styles.available, isStackSelected && styles.selected] }>
                 <View style={ styles.pole } />
-                { gamePieces ? renderMoveableBlocks : blocks }
+                { blocks }
             </View>
         );
     }

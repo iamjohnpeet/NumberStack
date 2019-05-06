@@ -208,7 +208,7 @@ class GamePlay extends Component {
     }
 
     // Render the stacks
-    renderStacks = (boardData, boardPlayable = false) => {
+    renderStacks = (boardData, staticBoard = true) => {
         const {
             isBoardSelected,
             selectedStack,
@@ -223,7 +223,7 @@ class GamePlay extends Component {
                     isStackSelected={ selectedStack === index }
                     handleStackSelect={ this.handleStackSelect }
                     moveSelectedBlock={ this.swapBlocks }
-                    gamePieces={ boardPlayable }
+                    staticBoard={ staticBoard }
                 />);
             }
         );
@@ -238,14 +238,14 @@ class GamePlay extends Component {
         return (
             <SafeAreaView style={ styles.container }>
                 <View style={ styles.scoreBoard }>
-                    <View onPress={() => clearInterval(this.timer)} style={ styles.moves }><Timer millisecondsElapsed={ this.state.millisecondsElapsed } /></View>
+                    <View style={ styles.moves }><Timer millisecondsElapsed={ this.state.millisecondsElapsed } /></View>
                     <Text style={ styles.moves }>Moves: { this.state.moves }</Text>
                     { this.state.bestScore > 0 && <Text style={ styles.moves }>Best Score: { this.state.bestScore.toLocaleString() }</Text>}
                 </View>
                 <View style={ styles.topSection }>
                     <View style={ styles.topSectionBoard }>
                         <View style={ styles.stacks }>
-                            { this.renderStacks(boardData) }
+                            { this.renderStacks(boardData, true) }
                         </View>
                         {/* <Board
                             boardData={ this.state.stacksData }
@@ -256,7 +256,7 @@ class GamePlay extends Component {
                 </View>
                 <View style={ styles.bottomSection }>
                     <View style={ styles.stacks }>
-                        { this.renderStacks(this.state.stacksData, true) }
+                        { this.renderStacks(this.state.stacksData, false) }
                     </View>
                 </View>
                 <Modal
