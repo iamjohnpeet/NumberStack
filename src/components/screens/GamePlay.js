@@ -21,7 +21,6 @@ class GamePlay extends Component {
         gameComplete: false,
         moves: 0,
         score: null,
-        millisecondsElapsed: 0,
         bestScore: 0,
         modalVisible: false,
     };
@@ -62,18 +61,6 @@ class GamePlay extends Component {
         return false;
     }
 
-    startTimer() {
-        this.timer = setInterval(() => {
-            this.setState({
-                millisecondsElapsed: this.state.millisecondsElapsed + 100
-            })
-        }, 100)
-    }
-
-    stopTimer() {
-        clearInterval(this.timer);
-    }
-
     setModalVisible(visible) {
       this.setState({ modalVisible: visible });
     }
@@ -94,13 +81,6 @@ class GamePlay extends Component {
         this.setState({
             isBoardSelected: false,
             selectedStack: null,
-        });
-    }
-
-    // Reset the state object
-    resetTimer = () => {
-        this.setState({
-            millisecondsElapsed: 0,
         });
     }
 
@@ -187,22 +167,20 @@ class GamePlay extends Component {
         });
 
         this.resetState();
-        this.resetTimer();
         this.resetMoves();
         this.setModalVisible(false);
-        this.startTimer();
     }
 
     // End game
     endGame() {
-        const score = Math.floor((this.state.moves * this.state.millisecondsElapsed) / 9);
-        this.stopTimer();
+        const score = this.state.moves;
+        // const score = Math.floor((this.state.moves * this.state.millisecondsElapsed) / 9);
 
         this.storeData(score)
         this.setModalVisible(true);
 
         this.setState({
-            gameComplete: true,
+            gameEnded: true,
             score,
         })
     }
@@ -238,9 +216,11 @@ class GamePlay extends Component {
         return (
             <SafeAreaView style={ styles.container }>
                 <View style={ styles.scoreBoard }>
-                    <View onPress={() => clearInterval(this.timer)} style={ styles.moves }><Timer millisecondsElapsed={ this.state.millisecondsElapsed } /></View>
+                    <View style={ styles.moves }>
+                        <Timer stopTimer={ this.state.gameEnded } />
+                    </View>
                     <Text style={ styles.moves }>Moves: { this.state.moves }</Text>
-                    { this.state.bestScore > 0 && <Text style={ styles.moves }>Best Score: { this.state.bestScore.toLocaleString() }</Text>}
+                    { <Text style={ styles.moves }>Best Score: { this.state.bestScore.toLocaleString() }</Text>}
                 </View>
                 <View style={ styles.topSection }>
                     <View style={ styles.topSectionBoard }>
