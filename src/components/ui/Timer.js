@@ -1,5 +1,7 @@
-import React, { PureComponent } from 'react'
-import { View, Text } from 'react-native';
+import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
+import { StyleSheet, View, Text } from 'react-native';
+import { updateTime } from '../../state/actions/timer';
 
 class Timer extends PureComponent {
     state = {
@@ -14,13 +16,14 @@ class Timer extends PureComponent {
     startTimer() {
         this.timer = setInterval(() => {
             this.setState({
-                millisecondsElapsed: this.state.millisecondsElapsed + 100
+                millisecondsElapsed: this.state.millisecondsElapsed + 100,
             })
         }, 100)
     }
 
     stopTimer() {
         clearInterval(this.timer);
+        updateTime(this.state.millisecondsElapsed)
     }
 
     resetTimer = () => {
@@ -45,14 +48,30 @@ class Timer extends PureComponent {
         this.props.stopTimer && this.stopTimer();
 
         return (
-            <View style={ { flexDirection: 'row', justifyContent: 'center', } }>
-                <View style={ { width: 22 } }><Text>{ `${this.getMinutes()}:` }</Text></View>
-                <View style={ { width: 22 } }><Text>{ `${this.getSeconds()}.` }</Text></View>
-                <View style={ { width: 22 } }><Text>{ `${this.getMilliseconds()}` }</Text></View>
+            <View style={ styles.timer }>
+                <View style={ styles.timerNumeric }><Text>{ `${this.getMinutes()}:` }</Text></View>
+                <View style={ styles.timerNumeric }><Text>{ `${this.getSeconds()}.` }</Text></View>
+                <View style={ styles.timerNumeric }><Text>{ `${this.getMilliseconds()}` }</Text></View>
             </View>
         );
     }
 
 }
 
+const styles = StyleSheet.create({
+    timer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    timerNumeric: {
+        width: 22,
+    }
+});
+
+// const mapDispatchToProps = {
+//     updateTime,
+// };
+
 export default Timer;
+
+// export default connect(null, mapDispatchToProps)(Timer);
