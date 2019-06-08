@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { SafeAreaView, AsyncStorage, View, StyleSheet, Text, Button, Modal, TouchableHighlight } from 'react-native';
-// import { connect } from 'react-redux'
+import { connect } from 'react-redux'
+import { updateHasGameEnded } from '../../state/actions/gameStatus';
 import { data, emptyStack } from '../../data';
 import { compareArrays, swapArrayElements, randomiseArray, groupArray } from '../../lib/utils';
 import Timer from '../ui/Timer'
 import Stack from '../ui/Stack'
-import DraggableBlock from '../ui/DraggableBlock'
+// import DraggableBlock from '../ui/DraggableBlock'
 
 // ADD README
 
@@ -173,8 +174,7 @@ class GamePlay extends Component {
 
     // End game
     endGame() {
-        const score = this.state.moves;
-        // const score = Math.floor((this.state.moves * this.state.millisecondsElapsed) / 9);
+        const score = Math.floor((this.state.moves * this.props.time) / 9);
 
         this.storeData(score)
         this.setModalVisible(true);
@@ -183,6 +183,8 @@ class GamePlay extends Component {
             gameEnded: true,
             score,
         })
+
+        this.props.updateHasGameEnded(true);
     }
 
     // Render the stacks
@@ -215,23 +217,20 @@ class GamePlay extends Component {
 
         return (
             <SafeAreaView style={ styles.container }>
+
                 <View style={ styles.scoreBoard }>
                     <View style={ styles.moves }>
-                        <Timer stopTimer={ this.state.gameEnded } />
+                        <Timer />
                     </View>
                     <Text style={ styles.moves }>Moves: { this.state.moves }</Text>
                     { <Text style={ styles.moves }>Best Score: { this.state.bestScore.toLocaleString() }</Text>}
                 </View>
+
                 <View style={ styles.topSection }>
                     <View style={ styles.topSectionBoard }>
                         <View style={ styles.stacks }>
                             { this.renderStacks(boardData) }
                         </View>
-                        {/* <Board
-                            boardData={ this.state.stacksData }
-                            boardPlayable={ false }
-                            { ...this.props }
-                        /> */}
                     </View>
                 </View>
                 <View style={ styles.bottomSection }>
@@ -239,6 +238,7 @@ class GamePlay extends Component {
                         { this.renderStacks(this.state.stacksData, true) }
                     </View>
                 </View>
+
                 <Modal
                     animationType="fade"
                     transparent
@@ -268,13 +268,6 @@ class GamePlay extends Component {
                                 </View>
                             ) }
                             <View style={{ flexDirection: "row" }}>
-                                {/* <TouchableHighlight
-                                    style={ styles.button }
-                                    onPress={() => {
-                                    this.setModalVisible(!this.state.modalVisible);
-                                }}>
-                                    <Text style={{ fontWeight: 'bold' }}>Try again</Text>
-                                </TouchableHighlight> */}
                                 <TouchableHighlight
                                     style={ styles.button }
                                     onPress={() => {
@@ -343,10 +336,12 @@ const styles = StyleSheet.create({
     }
 });
 
-// const mapStateToProps = state => {
-//     return {
-//         gameCompleted: getGameStatus(state.gameCompleted)
-//     }
-// }
+const mapDispatchToProps = {
+    updateHasGameEnded,
+};
 
-export default GamePlay;
+const mapStateToProps = state => ({
+    time: state.timer.time,
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(GamePlay);

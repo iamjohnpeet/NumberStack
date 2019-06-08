@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import { StyleSheet, View, Text } from 'react-native';
-import { updateTime } from '../../state/actions/timer';
+import { updateTimer } from '../../state/actions/timer';
 
 class Timer extends PureComponent {
     state = {
@@ -9,8 +9,14 @@ class Timer extends PureComponent {
     };
 
     componentDidMount() {
+        // TODO: Why does this need to be set and why can't it be zero?!
+        this.props.updateTimer(1);
         this.resetTimer();
         this.startTimer();
+    }
+
+    componentWillUnmount() {
+        this.stopTimer();
     }
 
     startTimer() {
@@ -23,7 +29,10 @@ class Timer extends PureComponent {
 
     stopTimer() {
         clearInterval(this.timer);
-        updateTime(this.state.millisecondsElapsed)
+    }
+
+    recordTime() {
+        this.props.updateTimer(this.state.millisecondsElapsed);
     }
 
     resetTimer = () => {
@@ -45,7 +54,10 @@ class Timer extends PureComponent {
     }
 
     render() {
-        this.props.stopTimer && this.stopTimer();
+        if (this.props.gameEnded) {
+            this.stopTimer();
+            this.recordTime();
+        }
 
         return (
             <View style={ styles.timer }>
@@ -68,10 +80,13 @@ const styles = StyleSheet.create({
     }
 });
 
-// const mapDispatchToProps = {
-//     updateTime,
-// };
+const mapDispatchToProps = {
+    updateTimer,
+};
 
-export default Timer;
+const mapStateToProps = state => ({
+    gameEnded: state.gameStatus.hasGameEnded,
+    time: state.timer.time,
+});
 
-// export default connect(null, mapDispatchToProps)(Timer);
+export default connect(mapStateToProps, mapDispatchToProps)(Timer);
