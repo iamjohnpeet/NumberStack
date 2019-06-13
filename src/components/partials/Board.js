@@ -1,63 +1,9 @@
 import React, { Component } from 'react';
-import { View, TouchableWithoutFeedback, StyleSheet, Text } from 'react-native';
-import Stack from './Stack';
+import { View } from 'react-native';
 
 export default class Board extends Component {
-    state = {
-        isBoardSelected: false,
-        selectedStack: null,
-    };
-
-    handleStackSelect = this.handleStackSelect.bind(this);
-    swapBlocks = this.swapBlocks.bind(this);
-
-    handleStackSelect(stackIndex, selectBlockPos, availableSpace) {
-        const {
-            isBoardSelected,
-            selectedStack,
-        } = this.state;
-
-        if(selectedStack === stackIndex) {
-            this.resetState();
-        } else {
-            this.setState({
-                isBoardSelected: true,
-                selectedStack: stackIndex,
-            });
-        }
-
-        if (isBoardSelected && availableSpace >= 0 && selectedStack !== stackIndex) {
-            this.swapBlocks(availableSpace, stackIndex)
-        } else {
-            this.selectBlockPos = selectBlockPos;
-        }
-    }
-
-    swapBlocks(availableSpace, stackIndex) {
-        const { selectedStack } = this.state;
-
-        if(selectedStack !== stackIndex) {
-            swapArrayElements(this.shuffledData, availableSpace, this.selectBlockPos);
-
-            this.setState({
-                stacksData: this.groupData(this.shuffledData),
-            });
-
-            this.resetState();
-            this.selectBlockPos = null;
-        } else {
-            this.resetState();
-        }
-
-        this.compareData();
-    }
-
-    renderStacks = () => {
-        const {
-            boardData,
-            boardPlayable,
-        } = this.props;
-
+    // Render the stacks
+    renderStacks = (boardData, boardPlayable = false) => {
         const {
             isBoardSelected,
             selectedStack,
@@ -82,17 +28,11 @@ export default class Board extends Component {
 
     render() {
         return (
-            <View style={ styles.stacks }>
-                { this.renderStacks() }
+            <View style={ styles.bottomSection }>
+                <View style={ styles.stacks }>
+                    { this.renderStacks(this.state.stacksData, true) }
+                </View>
             </View>
         )
     }
 }
-
-const styles = StyleSheet.create({
-    stacks: {
-        flexDirection: 'row',
-        borderBottomWidth: 14,
-        borderBottomColor: '#2b1d0e',
-    }
-});

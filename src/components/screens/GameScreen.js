@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { SafeAreaView, AsyncStorage, View, StyleSheet, Text, Button, Modal, TouchableHighlight } from 'react-native';
 import { connect } from 'react-redux'
 import { updateHasGameEnded } from '../../state/actions/gameStatus';
@@ -6,13 +6,12 @@ import { data, emptyStack } from '../../data';
 import { compareArrays, swapArrayElements, randomiseArray, groupArray } from '../../lib/utils';
 import Timer from '../ui/Timer'
 import Stack from '../ui/Stack'
-// import DraggableBlock from '../ui/DraggableBlock'
 
 // ADD README
 
 // UPDATE GIT IGNORE FILE
 
-class GamePlay extends Component {
+class GameScreen extends PureComponent {
     // Global State, functions and vars
     state = {
         stacksData: [],
@@ -174,7 +173,7 @@ class GamePlay extends Component {
 
     // End game
     endGame() {
-        const score = Math.floor((this.state.moves * this.props.time) / 9);
+        const score = this.props.time;
 
         this.storeData(score)
         this.setModalVisible(true);
@@ -222,8 +221,7 @@ class GamePlay extends Component {
                     <View style={ styles.moves }>
                         <Timer />
                     </View>
-                    <Text style={ styles.moves }>Moves: { this.state.moves }</Text>
-                    { <Text style={ styles.moves }>Best Score: { this.state.bestScore.toLocaleString() }</Text>}
+                    { <Text style={ styles.moves }>Best time: { this.state.bestScore.toLocaleString() }</Text>}
                 </View>
 
                 <View style={ styles.topSection }>
@@ -344,4 +342,4 @@ const mapStateToProps = state => ({
     time: state.timer.time,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(GamePlay);
+export default connect(mapStateToProps, mapDispatchToProps)(GameScreen);
